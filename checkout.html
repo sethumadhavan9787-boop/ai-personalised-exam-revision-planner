@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% block title %}Checkout - ShopKart{% endblock %}
+{% block content %}
+<div class="container" style="padding: 24px 16px;">
+  <div class="breadcrumb">
+    <a href="{{ url_for('products.home') }}">Home</a> › <a href="{{ url_for('cart.view_cart') }}">Cart</a> › <span>Checkout</span>
+  </div>
+
+  <h1 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 20px;">Checkout</h1>
+
+  <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+    <div>
+      <form method="POST" action="{{ url_for('orders.checkout') }}" id="checkoutForm">
+        <input type="hidden" name="action" value="place_order" />
+
+        <!-- Delivery Address -->
+        <div style="background: #fff; border-radius: var(--radius-md); padding: 20px; box-shadow: var(--shadow-sm); margin-bottom: 20px;">
+          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;">1. Delivery Address</h3>
+          
+          {% if addresses %}
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
+              {% for addr in addresses %}
+                <label style="display: flex; gap: 10px; padding: 12px; border: 1px solid var(--border-light); border-radius: 4px; cursor: pointer;">
+                  <input type="radio" name="address_id" value="{{ addr.id }}" {% if loop.first %}checked{% endif %} onchange="toggleAddressForm()" />
+                  <div>
+                    <strong>{{ addr.name }}</strong> ({{ addr.phone }})<br/>
+                    <span style="color: var(--text-secondary); font-size: 0.85rem;">
+                      {{ addr.street }}, {{ addr.city }}, {{ addr.state }} - {{ addr.pincode }}
+                    </span>
+                  </div>
+                </label>
+              {% endfor %}
+              <label style="display: flex; gap: 10px; padding: 12px; border: 1px dashed var(--border-light); border-radius: 4px; cursor: pointer;">
+                <input type="radio" name="address_id" value="new" id="newAddressRadio" onchange="toggleAddressForm()" />
+                <div>
+                  <strong>+ Deliver to a new address</strong>
+                </div>
+              </label>
+            </div>
+          {% endif %}
+
+          <div id="newAddressContainer" style="{% if addresses %}display: none; border-top: 1px solid var(--border-subtle); padding-top: 16px; margin-top: 12px;{% endif %}">
+            {% if addresses %}
+              <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; color: var(--text-primary);">New Delivery Address Details</h4>
+            {% endif %}
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+              <div>
+                <label style="font-size: 0.82rem; font-weight: 600;">Full Name</label>
+                <input type="text" name="addr_name" id="addr_name" class="form-input" {% if not addresses %}required{% endif %} />
+              </div>
+              <div>
+                <label style="font-size: 0.82rem; font-weight: 600;">Phone Number</label>
+                <input type="tel" name="addr_phone" id="addr_phone" class="form-input" {% if not addresses %}required{% endif %} />
+              </div>
+              <div style="grid-column: span 2;">
+                <label style="font-size: 0.82rem; font-weight: 600;">Street Address</label>
+                <input type="text" name="addr_street" id="addr_street" class="form-input" {% if not addresses %}required{% endif %} />
+              </div>
+              <div>
+                <label style="font-size: 0.82rem; font-weight: 600;">City</label>
+                <input type="text" name="addr_city" id="addr_city" class="form-input" {% if not addresses %}required{% endif %} />
+              </div>
+              <div>
+                <label style="font-size: 0.82rem; font-weight: 600;">State</label>
+                <input type="text" name="addr_state" id="addr_state" class="form-input" {% if not addresses %}required{% endif %} />
+              </div>
+              <div>
+                <label style="font-size: 0.82rem; font-weight: 600;">Pincode</label>
+                <input type="text" name="addr_pincode" id="addr_pincode" class="form-input" {% if not addresses %}required{% endif %} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Method -->
+        <div style="background: #fff; border-radius: var(--radius-md); padding: 20px; box-shadow: var(--shadow-sm); margin-bottom: 20px;">
+          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;">2. Payment Option</h3>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+              <input type="radio" name="payment_method" value="COD" checked />
+              <span>💵 Cash on Delivery (COD)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+              <input type="radio" name="payment_method" value="UPI" />
+              <span>📱 UPI (Google Pay, PhonePe, Paytm)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+              <input type="radio" name="payment_method" value="Card" />
+              <span>💳 Credit / Debit Card</span>
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" name="action" value="place_order" class="btn btn-secondary w-full btn-lg">Confirm & Place Order →</button>
+      </form>
+    </div>
+
+    <!-- Order Summary -->
+    <div>
+      <div class="cart-summary-box">
+        <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 16px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">Order Summary</h3>
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
+          {% for item in cart_items %}
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+              <span>{{ item.product.name|truncate(25) }} × {{ item.quantity }}</span>
+              <span>{{ item.subtotal() | inr }}</span>
+            </div>
+          {% endfor %}
+        </div>
+        <hr style="border: none; border-top: 1px solid var(--border-subtle); margin: 12px 0;" />
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.88rem;">
+          <span>Subtotal</span>
+          <span>{{ subtotal | inr }}</span>
+        </div>
+        {% if discount > 0 %}
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.88rem; color: var(--success);">
+          <span>Coupon Discount</span>
+          <span>- {{ discount | inr }}</span>
+        </div>
+        {% endif %}
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.88rem;">
+          <span>Delivery Charges</span>
+          <span>{% if shipping == 0 %}<strong style="color: var(--success);">FREE</strong>{% else %}{{ shipping | inr }}{% endif %}</span>
+        </div>
+        <hr style="border: none; border-top: 1px solid var(--border-subtle); margin: 12px 0;" />
+        <div style="display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: 800;">
+          <span>Total Payable</span>
+          <span>{{ total | inr }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleAddressForm() {
+  const newRadio = document.getElementById('newAddressRadio');
+  const container = document.getElementById('newAddressContainer');
+  if (!container) return;
+  const inputs = container.querySelectorAll('input');
+
+  if (!newRadio || newRadio.checked) {
+    container.style.display = 'block';
+    inputs.forEach(input => input.required = true);
+  } else {
+    container.style.display = 'none';
+    inputs.forEach(input => input.required = false);
+  }
+}
+</script>
+{% endblock %}

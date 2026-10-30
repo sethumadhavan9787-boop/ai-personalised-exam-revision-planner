@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+{% block title %}ShopKart - Shop Electronics, Fashion, Home & More{% endblock %}
+{% block content %}
+
+<!-- ── HERO BANNER ── -->
+<section class="hero">
+  <div class="hero-slider" id="heroSlider">
+    <div class="hero-slide active" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)">
+      <div class="hero-content">
+        <div class="hero-badge">🔥 Mega Sale</div>
+        <h1>Up to <span class="hero-highlight">70% OFF</span></h1>
+        <p>On Electronics, Fashion, Home & More</p>
+        <div class="hero-cta">
+          <a href="{{ url_for('products.product_list', sort='discount') }}" class="btn btn-primary btn-lg">Shop Now 🛒</a>
+          <a href="{{ url_for('products.product_list') }}" class="btn btn-outline btn-lg">Explore All</a>
+        </div>
+      </div>
+      <div class="hero-visual">🛍️</div>
+    </div>
+    <div class="hero-slide" style="background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #21262d 100%)">
+      <div class="hero-content">
+        <div class="hero-badge">📱 New Arrivals</div>
+        <h1>Latest <span class="hero-highlight">Smartphones</span></h1>
+        <p>Starting from ₹8,999 | EMI Available</p>
+        <div class="hero-cta">
+          <a href="{{ url_for('products.product_list', category='smartphones') }}" class="btn btn-primary btn-lg">Shop Phones</a>
+        </div>
+      </div>
+      <div class="hero-visual">📱</div>
+    </div>
+    <div class="hero-slide" style="background: linear-gradient(135deg, #1b003b 0%, #2d0067 50%, #4a0080 100%)">
+      <div class="hero-content">
+        <div class="hero-badge">👗 Fashion Week</div>
+        <h1>Style <span class="hero-highlight">Up to 60%</span> Off</h1>
+        <p>Trending styles for Men, Women & Kids</p>
+        <div class="hero-cta">
+          <a href="{{ url_for('products.product_list', category='fashion') }}" class="btn btn-primary btn-lg">Shop Fashion</a>
+        </div>
+      </div>
+      <div class="hero-visual">👗</div>
+    </div>
+  </div>
+  <div class="hero-dots" id="heroDots">
+    <span class="hero-dot active" data-slide="0"></span>
+    <span class="hero-dot" data-slide="1"></span>
+    <span class="hero-dot" data-slide="2"></span>
+  </div>
+  <button class="hero-arrow hero-prev" id="heroPrev">‹</button>
+  <button class="hero-arrow hero-next" id="heroNext">›</button>
+</section>
+
+<!-- ── CATEGORIES GRID ── -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Shop by Category</h2>
+      <a href="{{ url_for('products.product_list') }}" class="see-all">View All →</a>
+    </div>
+    <div class="categories-grid">
+      {% for cat in categories %}
+        <a href="{{ url_for('products.product_list', category=cat.slug) }}" class="category-card">
+          <div class="cat-icon">{{ cat.icon }}</div>
+          <div class="cat-name">{{ cat.name }}</div>
+        </a>
+      {% endfor %}
+      <a href="{{ url_for('products.product_list', sort='discount') }}" class="category-card cat-deals">
+        <div class="cat-icon">🔥</div>
+        <div class="cat-name">Hot Deals</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── FLASH DEALS ── -->
+{% if flash_deals %}
+<section class="section section-dark">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-left">
+        <h2 class="section-title">⚡ Flash Deals</h2>
+        <div class="flash-timer" id="flashTimer">
+          <span>Ends in:</span>
+          <div class="timer-block"><span id="timer-h">05</span><small>h</small></div>
+          <div class="timer-block"><span id="timer-m">30</span><small>m</small></div>
+          <div class="timer-block"><span id="timer-s">00</span><small>s</small></div>
+        </div>
+      </div>
+      <a href="{{ url_for('products.product_list', sort='discount') }}" class="see-all">See All →</a>
+    </div>
+    <div class="products-scroll">
+      {% for product in flash_deals %}
+        {% include 'products/_card.html' %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ── FEATURED PRODUCTS ── -->
+{% if featured %}
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">⭐ Featured Products</h2>
+      <a href="{{ url_for('products.product_list', sort='popular') }}" class="see-all">See All →</a>
+    </div>
+    <div class="products-grid">
+      {% for product in featured %}
+        {% include 'products/_card.html' %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ── PROMO BANNERS ── -->
+<section class="section">
+  <div class="container">
+    <div class="promo-grid">
+      <div class="promo-card promo-electronics">
+        <div class="promo-content">
+          <span class="promo-tag">Best Deals</span>
+          <h3>Electronics <br/>Sale</h3>
+          <p>Up to 45% off on top brands</p>
+          <a href="{{ url_for('products.product_list', category='electronics') }}" class="btn btn-primary btn-sm">Shop Now</a>
+        </div>
+      </div>
+      <div class="promo-card promo-fashion">
+        <div class="promo-content">
+          <span class="promo-tag">New Season</span>
+          <h3>Fashion <br/>Trends</h3>
+          <p>Flat 50% off on clothing</p>
+          <a href="{{ url_for('products.product_list', category='fashion') }}" class="btn btn-light btn-sm">Shop Now</a>
+        </div>
+      </div>
+      <div class="promo-card promo-home">
+        <div class="promo-content">
+          <span class="promo-tag">Home Essentials</span>
+          <h3>Home & <br/>Kitchen</h3>
+          <p>Starting from ₹299</p>
+          <a href="{{ url_for('products.product_list', category='home-kitchen') }}" class="btn btn-primary btn-sm">Shop Now</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TOP DEALS ── -->
+{% if top_deals %}
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">🏷️ Top Deals of the Day</h2>
+      <a href="{{ url_for('products.product_list', sort='discount') }}" class="see-all">See All →</a>
+    </div>
+    <div class="products-grid">
+      {% for product in top_deals %}
+        {% include 'products/_card.html' %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ── NEW ARRIVALS ── -->
+{% if new_arrivals %}
+<section class="section section-dark">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">🆕 New Arrivals</h2>
+      <a href="{{ url_for('products.product_list', sort='newest') }}" class="see-all">See All →</a>
+    </div>
+    <div class="products-scroll">
+      {% for product in new_arrivals %}
+        {% include 'products/_card.html' %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ── TRUST BADGES ── -->
+<section class="trust-section">
+  <div class="container">
+    <div class="trust-grid">
+      <div class="trust-item">
+        <div class="trust-icon">🚚</div>
+        <div class="trust-info">
+          <strong>Free Delivery</strong>
+          <span>On orders above ₹499</span>
+        </div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-icon">🔄</div>
+        <div class="trust-info">
+          <strong>Easy Returns</strong>
+          <span>10-day return policy</span>
+        </div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-icon">🔒</div>
+        <div class="trust-info">
+          <strong>Secure Payment</strong>
+          <span>100% safe transactions</span>
+        </div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-icon">🏆</div>
+        <div class="trust-info">
+          <strong>Genuine Products</strong>
+          <span>Trusted by 1M+ customers</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/hero.js') }}"></script>
+<script src="{{ url_for('static', filename='js/timer.js') }}"></script>
+{% endblock %}
